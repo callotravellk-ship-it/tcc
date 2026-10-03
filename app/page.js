@@ -21,9 +21,10 @@ const db = getFirestore(app);
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
   
   const [formData, setFormData] = useState({
-    firstName: '', lastName: '', email: '', phone: '', tripType: 'One Way', passengers: '', date: '', pickupCity: '', details: ''
+    firstName: '', lastName: '', email: '', phone: '', tripType: 'Select', passengers: 'Select', date: '', pickupCity: '', details: ''
   });
 
   const handleInputChange = (e) => {
@@ -34,6 +35,7 @@ export default function App() {
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitMessage({ type: '', text: '' });
     
     try {
       await addDoc(collection(db, 'quotes'), {
@@ -41,13 +43,13 @@ export default function App() {
         submittedAt: new Date().toISOString()
       });
       
-      alert("Quote request submitted successfully! We will contact you shortly.");
+      setSubmitMessage({ type: 'success', text: 'Quote request submitted successfully! We will contact you shortly.' });
       setFormData({
-        firstName: '', lastName: '', email: '', phone: '', tripType: 'One Way', passengers: '', date: '', pickupCity: '', details: ''
+        firstName: '', lastName: '', email: '', phone: '', tripType: 'Select', passengers: 'Select', date: '', pickupCity: '', details: ''
       });
     } catch (error) {
       console.error("Error submitting quote: ", error);
-      alert("There was an error submitting your request. Make sure your environment variables are set correctly in Vercel.");
+      setSubmitMessage({ type: 'error', text: 'There was an error submitting your request. Please try again or contact us directly.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -66,7 +68,6 @@ export default function App() {
   return (
     <div className="font-sans text-gray-800 bg-white flex flex-col min-h-screen">
       
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-7xl">
           
@@ -284,6 +285,13 @@ export default function App() {
 
             <div className="md:w-7/12 w-full">
               <div className="bg-white p-8 rounded-xl shadow-2xl">
+                
+                {submitMessage.text && (
+                  <div className={`mb-6 p-4 rounded-md text-sm font-medium ${submitMessage.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                    {submitMessage.text}
+                  </div>
+                )}
+
                 <form onSubmit={handleQuoteSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
@@ -405,7 +413,7 @@ export default function App() {
             <div>
               <h4 className="text-white font-bold mb-6 text-sm">Follow Us</h4>
               <div className="flex space-x-3">
-                {/* SVG Replacements for Social Icons to prevent lucide-react build errors */}
+                {/* Safe inline SVGs replacing broken Lucide icons */}
                 <a href="#" className="bg-gray-800 p-2.5 rounded-full hover:bg-red-600 hover:text-white transition-colors">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
                 </a>
